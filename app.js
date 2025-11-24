@@ -5,32 +5,56 @@ import { setupControls } from './controls.js';
 import { ProcLedVolumeGeometry } from './procGeometry.js';
 import { setupScene, scene, camera, renderer } from './sceneSetup.js';
 import { update } from './update.js';
-import { setupUI, settings } from './ui.js';
+import { setupUI, settings, wallSettings } from './ui.js';
+import { createUVGridTexture } from './textureGenerator.js';
+import { downloadOBJ } from './exporter.js';
 
 setupScene();
 setupControls(camera, renderer.domElement);
 
-//Create geometry + material + mesh.
-const distances = [8420,8444,8510,8619,8771,8964,9190,9452,9713,9910,10043,10115,10117,10056,9930,9801,9684,9563,9447,9331,9218,9108,8995,8876,8766,8653];
-const panelwidth = 600;
-const angles = calculateAngles(distances, panelwidth)[0];
+let ledMesh;
 
-const testAngles = [0, 0, 0, -10, -10, -10, -10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+function createLedWall()
+{
+    if (ledMesh)
+    {
+        scene.remove(ledMesh);
+        ledMesh.geometry.dispose();
+        ledMesh.material.map.dispose();
+        ledMesh.material.dispose();
+    }
 
-const ledWallGeometry = new ProcLedVolumeGeometry(angles, {x: 25, y: 9}, {x: 600, y: 337.5}, 90, {x: 0, y: 0, z: 0}); // procedural geometry
-const ledMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000, wireframe: true }); // red wireframe for visibility
-const ledMesh = new THREE.Mesh(ledWallGeometry, ledMaterial);
-ledMesh.name = 'LedWallMesh';
-ledMesh.rotation.x = -Math.PI / 2; // lay flat
-scene.add(ledMesh);
+    const panels = { x: wallSettings.columns, y: wallSettings.rows };
+    const panelDimensions = { x: wallSettings.panelWidth, y: wallSettings.panelHeight };
+    
+    const ledWallGeometry = new ProcLedVolumeGeometry(
+        wallSettings.angles.slice(1), 
+        panels, 
+        panelDimensions, 
+        90, 
+        {x: 0, y: 0, z: 0}
+    );
 
-ledMesh.position.x += -8416;
-ledMesh.position.y += 0.0;
-ledMesh.position.z += 0.0;
+    const texture = createUVGridTexture(panels.x, panels.y);
+    const ledMaterial = new THREE.MeshStandardMaterial({ 
+        map: texture,
+        color: 0xffffff,
+        wireframe: false 
+    });
 
-setupUI(ledMesh);
+    ledMesh = new THREE.Mesh(ledWallGeometry, ledMaterial);
+    ledMesh.name = 'LedWallMesh';
+    ledMesh.rotation.x = -Math.PI / 2; // lay flat
+    
+    ledMesh.position.x = -8416;
+    ledMesh.position.y = 0;
+    ledMesh.position.z = 0;
+    ledMesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), -THREE.MathUtils.degToRad(wallSettings.angles[0]));
+    scene.add(ledMesh);
+}
 
-//Expose core objects so you can interact with them from the console or migrate functions from your other codebase into this context.
-//window.app = { scene, camera, renderer, ledMesh, geometry: ledWallGeometry };
+createLedWall();
+setupUI(ledMesh, createLedWall, () => downloadOBJ(ledMesh));
 
-update(renderer, scene, camera, ledMesh, settings);
+update(renderer, scene, camera, settings);
+update(renderer, scene, camera, settings);

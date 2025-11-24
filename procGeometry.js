@@ -19,12 +19,15 @@ export class ProcLedVolumeGeometry extends THREE.BufferGeometry {
     let nextPoint = vectorPos.clone();
 
     // Generate vertices and UVs
-    for (let i = 0; i <= panels.x; i++) {
-      if (i !== 0 && panelAngles[i - 1] !== undefined) {
+    for (let i = 0; i <= panels.x; i++)
+    {
+      if (i !== 0 && panelAngles[i - 1] !== undefined)
+      {
         cumulativeAngleDeg += panelAngles[i - 1];
       }
 
-      for (let j = 0; j <= panels.y; j++) {
+      for (let j = 0; j <= panels.y; j++)
+      {
         vectorPos.copy(nextPoint);
         vectorPos.z = j * panelDimensions.y;
 
@@ -32,7 +35,7 @@ export class ProcLedVolumeGeometry extends THREE.BufferGeometry {
 
         const U = i / panels.x;
         const V = j / panels.y;
-        uvs.push(U, 1 - V);
+        uvs.push(U, V);
       }
 
       const angleRad = THREE.MathUtils.degToRad(cumulativeAngleDeg);
@@ -42,8 +45,10 @@ export class ProcLedVolumeGeometry extends THREE.BufferGeometry {
     }
 
     // Generate triangles (indices)
-    for (let i = 0; i < panels.x; i++) {
-      for (let j = 0; j < panels.y; j++) {
+    for (let i = 0; i < panels.x; i++)
+    {
+      for (let j = 0; j < panels.y; j++)
+      {
         const topLeft = i * (panels.y + 1) + j;
         const topRight = (i + 1) * (panels.y + 1) + j;
         const bottomLeft = i * (panels.y + 1) + (j + 1);
