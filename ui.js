@@ -11,6 +11,7 @@ export const wallSettings = {
     panelWidth: 600,
     panelHeight: 337.5,
     selectedPanel: 'custom',
+    meshPosition: { x: -8416, y: 0, z: 0 },
     angles: [
         -0.25368095,
         -0.032730339,
@@ -63,9 +64,15 @@ export function setupUI(mesh, onUpdate, onDownload)
     gui.domElement.style.right = 'auto';
     
     const folder = gui.addFolder('Mesh Position');
-    folder.add(mesh.position, 'x').name('Position X');
-    folder.add(mesh.position, 'y').name('Position Y');
-    folder.add(mesh.position, 'z').name('Position Z');
+    folder.add(wallSettings.meshPosition, 'x', -20000, 20000).name('Position X').onChange(() => {
+        mesh.position.x = wallSettings.meshPosition.x;
+    });
+    folder.add(wallSettings.meshPosition, 'y', -20000, 20000).name('Position Y').onChange(() => {
+        mesh.position.y = wallSettings.meshPosition.y;
+    });
+    folder.add(wallSettings.meshPosition, 'z', -20000, 20000).name('Position Z').onChange(() => {
+        mesh.position.z = wallSettings.meshPosition.z;
+    });
 
     const wallFolder = gui.addFolder('Wall Settings');
     

@@ -47,9 +47,9 @@ function createLedWall()
     ledMesh.name = 'LedWallMesh';
     ledMesh.rotation.x = -Math.PI / 2; // lay flat
     
-    ledMesh.position.x = -8416;
-    ledMesh.position.y = 0;
-    ledMesh.position.z = 0;
+    ledMesh.position.x = wallSettings.meshPosition.x;
+    ledMesh.position.y = wallSettings.meshPosition.y;
+    ledMesh.position.z = wallSettings.meshPosition.z;
     ledMesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), -THREE.MathUtils.degToRad(wallSettings.angles[0]));
     scene.add(ledMesh);
 }
