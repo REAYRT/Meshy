@@ -12,6 +12,7 @@ export class ProcLedVolumeGeometry extends THREE.BufferGeometry {
 
     const vertices = [];
     const uvs = [];
+    const uv2s = []; // Second UV channel
     const indices = [];
 
     let cumulativeAngleDeg = startingAngle;
@@ -33,9 +34,15 @@ export class ProcLedVolumeGeometry extends THREE.BufferGeometry {
 
         vertices.push(vectorPos.x, vectorPos.y, vectorPos.z);
 
+        // UV0 - normalized across entire mesh
         const U = i / panels.x;
         const V = j / panels.y;
         uvs.push(U, V);
+        
+        // UV1 - per-panel mapping (0-1 within each panel)
+        const U2 = (i % panels.x) / panels.x;
+        const V2 = (j % panels.y) / panels.y;
+        uv2s.push(U2, V2);
       }
 
       const angleRad = THREE.MathUtils.degToRad(cumulativeAngleDeg);
@@ -65,6 +72,7 @@ export class ProcLedVolumeGeometry extends THREE.BufferGeometry {
     // Set attributes
     this.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
     this.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    this.setAttribute('uv2', new THREE.Float32BufferAttribute(uv2s, 2));
     this.setIndex(indices);
     this.computeVertexNormals();
   }

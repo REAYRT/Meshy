@@ -48,3 +48,51 @@ export function createUVGridTexture(columns = 10, rows = 10) {
     texture.colorSpace = THREE.SRGBColorSpace;
     return texture;
 }
+
+export function createUV1GridTexture(columns = 10, rows = 10) {
+    const size = 2048;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext('2d');
+    
+    // Fill background with different color for distinction
+    context.fillStyle = '#001a33ff';
+    context.fillRect(0, 0, size, size);
+    
+    context.lineWidth = 2;
+    context.strokeStyle = '#00ff00ff';
+    context.font = '100px Arial';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    
+    // Draw vertical lines (per-panel)
+    const stepSizeX = size / columns;
+    for (let i = 0; i <= columns; i++) {
+        const pos = i * stepSizeX;
+        context.beginPath();
+        context.moveTo(pos, 0);
+        context.lineTo(pos, size);
+        context.stroke();
+    }
+
+    // Draw horizontal lines (per-panel)
+    const stepSizeY = size / rows;
+    for (let i = 0; i <= rows; i++) {
+        const pos = i * stepSizeY;
+        context.beginPath();
+        context.moveTo(0, pos);
+        context.lineTo(size, pos);
+        context.stroke();
+    }
+
+    // Add text
+    context.fillStyle = '#00ff00ff';
+    context.fillText('UV1 (0,0)', 250, size - 250);
+    context.fillText('UV1 (1,1)', size - 250, 250);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+}
+

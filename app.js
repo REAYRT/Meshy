@@ -6,13 +6,15 @@ import { ProcLedVolumeGeometry } from './procGeometry.js';
 import { setupScene, scene, camera, renderer } from './sceneSetup.js';
 import { update } from './update.js';
 import { setupUI, settings, wallSettings } from './ui.js';
-import { createUVGridTexture } from './textureGenerator.js';
+import { createUVGridTexture, createUV1GridTexture } from './textureGenerator.js';
 import { downloadOBJ } from './exporter.js';
+import { UVOverlay } from './uvOverlay.js';
 
 setupScene();
 setupControls(camera, renderer.domElement);
 
 let ledMesh;
+let uvOverlay = new UVOverlay(renderer);
 
 function createLedWall()
 {
@@ -35,9 +37,11 @@ function createLedWall()
         {x: 0, y: 0, z: 0}
     );
 
-    const texture = createUVGridTexture(panels.x, panels.y);
+    const uv0Texture = createUVGridTexture(panels.x, panels.y);
+    const uv1Texture = createUV1GridTexture(panels.x, panels.y);
+    
     const ledMaterial = new THREE.MeshStandardMaterial({ 
-        map: texture,
+        map: uv0Texture,
         color: 0xffffff,
         wireframe: false,
         side: THREE.DoubleSide
@@ -52,10 +56,12 @@ function createLedWall()
     ledMesh.position.z = wallSettings.meshPosition.z;
     ledMesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), -THREE.MathUtils.degToRad(wallSettings.angles[0]));
     scene.add(ledMesh);
+    
+    // Update UV overlay textures
+    uvOverlay.updateTextures(uv0Texture, uv1Texture);
 }
 
 createLedWall();
 setupUI(ledMesh, createLedWall, () => downloadOBJ(ledMesh));
 
-update(renderer, scene, camera, settings);
-update(renderer, scene, camera, settings);
+update(renderer, scene, camera, settings, uvOverlay);
