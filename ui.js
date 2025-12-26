@@ -44,22 +44,14 @@ export const wallSettings = {
 async function fetchPanelList() {
     try {
         const response = await fetch('https://api.reayrt.com/products/getall');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        return data.ids;
+        return data.panels || [];
     } catch (error) {
         console.error('Failed to fetch panel list:', error);
         return [];
-    }
-}
-
-async function fetchPanelData(panelId) {
-    try {
-        const response = await fetch(`https://api.reayrt.com/products/get/${panelId}`);
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(`Failed to fetch panel data for ${panelId}:`, error);
-        return null;
     }
 }
 
@@ -78,20 +70,32 @@ export function setupUI(mesh, onUpdate, onDownload)
     const wallFolder = gui.addFolder('Wall Settings');
     
     // LED Panel Type Selector
-    const panelOptions = { 'Custom': 'custom' };
+    const panelOptions = { 'Custom': 'custom', 'Loading...': 'loading' };
+    const panelDataMap = new Map(); // Store panel data for quick access
     let panelController;
     
     // Fetch and populate panel list
-    fetchPanelList().then(panelIds => {
-        panelIds.forEach(id => {
-            // Format display name: "roe-cb5" -> "ROE CB5"
-            const displayName = id.split('-').map(part => 
-                part.toUpperCase()
-            ).join(' ');
-            panelOptions[displayName] = id;
-        });
+    fetchPanelList().then(panels => {
+        // Clear loading option
+        delete panelOptions['Loading...'];
+        
+        if (panels.length === 0) {
+            panelOptions['Error Loading Panels'] = 'error';
+        } else {
+            panels.forEach(panel => {
+                panelOptions[panel.displayName] = panel.id;
+                panelDataMap.set(panel.id, panel);
+            });
+        }
         
         // Update the controller options
+        if (panelController) {
+            panelController.options(panelOptions);
+        }
+    }).catch(error => {
+        console.error('Failed to load panels:', error);
+        delete panelOptions['Loading...'];
+        panelOptions['Error Loading Panels'] = 'error';
         if (panelController) {
             panelController.options(panelOptions);
         }
@@ -99,12 +103,12 @@ export function setupUI(mesh, onUpdate, onDownload)
     
     panelController = wallFolder.add(wallSettings, 'selectedPanel', panelOptions)
         .name('Panel Type')
-        .onChange(async (value) => {
-            if (value !== 'custom') {
-                const panelData = await fetchPanelData(value);
+        .onChange((value) => {
+            if (value !== 'custom' && value !== 'loading' && value !== 'error') {
+                const panelData = panelDataMap.get(value);
                 if (panelData) {
-                    wallSettings.panelWidth = panelData.physicalSize.width;
-                    wallSettings.panelHeight = panelData.physicalSize.height;
+                    wallSettings.panelWidth = panelData.dimensions.width;
+                    wallSettings.panelHeight = panelData.dimensions.height;
                     // Update the controllers to reflect new values
                     widthController.updateDisplay();
                     heightController.updateDisplay();
