@@ -1,6 +1,5 @@
 //Import the Three.js module. Pick a fixed version for stability.
 import * as THREE from './three.module.js';
-import { calculateAngles } from './angleCalculator.js';
 import { setupControls } from './controls.js';
 import { ProcLedVolumeGeometry } from './procGeometry.js';
 import { setupScene, scene, camera, renderer } from './sceneSetup.js';
