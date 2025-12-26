@@ -40,35 +40,11 @@ function createLedWall()
     const uv1Texture = createUV1GridTexture(panels.x, panels.y);
     
     const ledMaterial = new THREE.MeshStandardMaterial({ 
-        map: uv1Texture,
+        map: uv0Texture,
         color: 0xffffff,
         wireframe: false,
         side: THREE.DoubleSide
     });
-    
-    // Modify shader to use uv2 instead of uv
-    ledMaterial.onBeforeCompile = (shader) => {
-        shader.vertexShader = shader.vertexShader.replace(
-            '#include <uv_pars_vertex>',
-            `#include <uv_pars_vertex>
-            attribute vec2 uv2;
-            varying vec2 vUv2;`
-        );
-        shader.vertexShader = shader.vertexShader.replace(
-            '#include <uv_vertex>',
-            `#include <uv_vertex>
-            vUv2 = uv2;`
-        );
-        shader.fragmentShader = shader.fragmentShader.replace(
-            '#include <uv_pars_fragment>',
-            `#include <uv_pars_fragment>
-            varying vec2 vUv2;`
-        );
-        shader.fragmentShader = shader.fragmentShader.replace(
-            /vUv/g,
-            'vUv2'
-        );
-    };
 
     ledMesh = new THREE.Mesh(ledWallGeometry, ledMaterial);
     ledMesh.name = 'LedWallMesh';
