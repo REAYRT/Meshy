@@ -15,6 +15,23 @@ export class ProcLedVolumeGeometry extends THREE.BufferGeometry {
     const uv2s = []; // Second UV channel
     const indices = [];
 
+    // Calculate aspect ratio for UV1
+    const wallWidth = panels.x * panelDimensions.x;
+    const wallHeight = panels.y * panelDimensions.y;
+    const aspectRatio = wallWidth / wallHeight;
+    
+    // Determine scaling for UV1 to preserve aspect ratio
+    let uv1ScaleX = 1.0;
+    let uv1ScaleY = 1.0;
+    
+    if (aspectRatio > 1.0) {
+      // Width is greater, scale Y down
+      uv1ScaleY = 1.0 / aspectRatio;
+    } else {
+      // Height is greater, scale X down
+      uv1ScaleX = aspectRatio;
+    }
+
     let cumulativeAngleDeg = startingAngle;
     let vectorPos = new THREE.Vector3(startingPos.x, startingPos.y, startingPos.z);
     let nextPoint = vectorPos.clone();
@@ -39,9 +56,9 @@ export class ProcLedVolumeGeometry extends THREE.BufferGeometry {
         const V = j / panels.y;
         uvs.push(U, V);
         
-        // UV1 - per-panel mapping (0-1 within each panel)
-        const U2 = (i % panels.x) / panels.x;
-        const V2 = (j % panels.y) / panels.y;
+        // UV1 - aspect ratio preserved mapping
+        const U2 = (i / panels.x) * uv1ScaleX;
+        const V2 = (j / panels.y) * uv1ScaleY;
         uv2s.push(U2, V2);
       }
 
