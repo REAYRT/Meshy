@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../reayrt-core-api"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}

@@ -16,12 +16,8 @@ export function setupScene() {
     document.body.appendChild(renderer.domElement);
 
     // Lighting
-    const ambient = new THREE.AmbientLight(0x404040, 1.0);
+    const ambient = new THREE.AmbientLight(0x404040, 100.0);
     scene.add(ambient);
-    
-    const dir = new THREE.DirectionalLight(0xffffff, 1.0);
-    dir.position.set(5, 10, 7.5);
-    scene.add(dir);
 
     // Grid Plane
     createGridPlane();

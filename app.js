@@ -39,7 +39,8 @@ function createLedWall()
     const ledMaterial = new THREE.MeshStandardMaterial({ 
         map: texture,
         color: 0xffffff,
-        wireframe: false 
+        wireframe: false,
+        side: THREE.DoubleSide
     });
 
     ledMesh = new THREE.Mesh(ledWallGeometry, ledMaterial);
