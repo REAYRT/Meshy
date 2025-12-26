@@ -66,20 +66,22 @@ export function createUV1GridTexture(columns = 10, rows = 10) {
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     
-    // Draw vertical lines (per-panel)
-    const stepSizeX = size / columns;
-    for (let i = 0; i <= columns; i++) {
-        const pos = i * stepSizeX;
+    // Draw a fixed 10x10 grid to show UV space usage
+    const gridSize = 10;
+    const stepSize = size / gridSize;
+    
+    // Draw vertical lines
+    for (let i = 0; i <= gridSize; i++) {
+        const pos = i * stepSize;
         context.beginPath();
         context.moveTo(pos, 0);
         context.lineTo(pos, size);
         context.stroke();
     }
 
-    // Draw horizontal lines (per-panel)
-    const stepSizeY = size / rows;
-    for (let i = 0; i <= rows; i++) {
-        const pos = i * stepSizeY;
+    // Draw horizontal lines
+    for (let i = 0; i <= gridSize; i++) {
+        const pos = i * stepSize;
         context.beginPath();
         context.moveTo(0, pos);
         context.lineTo(size, pos);
