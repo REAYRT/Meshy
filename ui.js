@@ -1,7 +1,7 @@
 import GUI from './lil-gui.esm.min.js';
 
 export const settings = {
-    animationSpeed: 0.002,
+    animationSpeed: 0.0005,
     autoRotate: true
 };
 
@@ -160,7 +160,6 @@ export function setupUI(mesh, onUpdate, onDownload)
 
     const animFolder = gui.addFolder('Animation');
     animFolder.add(settings, 'autoRotate').name('Auto Rotate');
-    animFolder.add(settings, 'animationSpeed', 0, 0.05).name('Speed');
 
     const exportFolder = gui.addFolder('Export');
     const exportObj = { download: onDownload };
