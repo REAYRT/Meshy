@@ -20,6 +20,22 @@ export class UVOverlay {
             depthWrite: false
         });
         
+        // Create background material (dark background for visibility)
+        this.backgroundMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x202020,
+            side: THREE.DoubleSide,
+            depthTest: false,
+            depthWrite: false
+        });
+        
+        // Create background planes
+        const planeGeometry = new THREE.PlaneGeometry(1, 1);
+        this.uv0Background = new THREE.Mesh(planeGeometry.clone(), this.backgroundMaterial);
+        this.uv1Background = new THREE.Mesh(planeGeometry.clone(), this.backgroundMaterial);
+        
+        this.overlayScene.add(this.uv0Background);
+        this.overlayScene.add(this.uv1Background);
+        
         // Create UV space border boxes
         const borderGeometry = this.createBorderBox();
         this.uv0Border = new THREE.LineSegments(borderGeometry, this.borderMaterial);
@@ -84,6 +100,13 @@ export class UVOverlay {
         const uv1X = 1 - marginNDC - squareSizeNDC / 2;
         const uv1Y = -1 + marginNDCHeight + squareSizeNDCHeight / 2;
         
+        // Update background positions
+        this.uv0Background.position.set(uv0X, uv0Y, -0.1);
+        this.uv0Background.scale.set(squareSizeNDC, squareSizeNDCHeight, 1);
+        
+        this.uv1Background.position.set(uv1X, uv1Y, -0.1);
+        this.uv1Background.scale.set(squareSizeNDC, squareSizeNDCHeight, 1);
+        
         // Update border positions
         this.uv0Border.position.set(uv0X, uv0Y, 0);
         this.uv0Border.scale.set(squareSizeNDC, squareSizeNDCHeight, 1);
@@ -100,6 +123,8 @@ export class UVOverlay {
     }
     
     updateGeometry(geometry) {
+        console.log('Updating UV overlay geometry');
+        
         // Remove old wireframes
         if (this.uv0Wireframe) {
             this.overlayScene.remove(this.uv0Wireframe);
@@ -112,11 +137,13 @@ export class UVOverlay {
         
         // Create UV0 wireframe
         const uv0Geometry = this.createUVWireframe(geometry, 'uv');
+        console.log('UV0 wireframe positions:', uv0Geometry.attributes.position.count);
         this.uv0Wireframe = new THREE.LineSegments(uv0Geometry, this.uv0WireMaterial);
         this.overlayScene.add(this.uv0Wireframe);
         
         // Create UV1 wireframe
         const uv1Geometry = this.createUVWireframe(geometry, 'uv2');
+        console.log('UV1 wireframe positions:', uv1Geometry.attributes.position.count);
         this.uv1Wireframe = new THREE.LineSegments(uv1Geometry, this.uv1WireMaterial);
         this.overlayScene.add(this.uv1Wireframe);
         
@@ -208,10 +235,13 @@ export class UVOverlay {
     
     dispose() {
         this.borderMaterial.dispose();
+        this.backgroundMaterial.dispose();
         this.uv0WireMaterial.dispose();
         this.uv1WireMaterial.dispose();
         this.uv0Border.geometry.dispose();
         this.uv1Border.geometry.dispose();
+        this.uv0Background.geometry.dispose();
+        this.uv1Background.geometry.dispose();
         if (this.uv0Wireframe) {
             this.uv0Wireframe.geometry.dispose();
         }
