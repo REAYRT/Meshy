@@ -33,8 +33,18 @@ export class UVOverlay {
         this.overlayScene.add(this.uv1Mesh);
         
         // Create wireframe materials for visualizing UV coordinates
-        this.uv0WireMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
-        this.uv1WireMaterial = new THREE.LineBasicMaterial({ color: 0xffff00, linewidth: 2 });
+        this.uv0WireMaterial = new THREE.LineBasicMaterial({ 
+            color: 0xff0000, 
+            linewidth: 2,
+            depthTest: false,
+            depthWrite: false
+        });
+        this.uv1WireMaterial = new THREE.LineBasicMaterial({ 
+            color: 0xffff00, 
+            linewidth: 2,
+            depthTest: false,
+            depthWrite: false
+        });
         
         // Wireframe objects (will be created when geometry is updated)
         this.uv0Wireframe = null;
@@ -167,7 +177,7 @@ export class UVOverlay {
         const uv0X = 1 - marginNDC - squareSizeNDC / 2;
         const uv0Y = -1 + marginNDCHeight + squareSizeNDCHeight / 2 + squareSizeNDCHeight + marginNDCHeight;
         
-        this.uv0Wireframe.position.set(uv0X, uv0Y, 0.001);
+        this.uv0Wireframe.position.set(uv0X, uv0Y, 0.1);
         // Scale by 2x the texture plane scale since wireframe is in -0.5 to 0.5 space
         this.uv0Wireframe.scale.set(squareSizeNDC, squareSizeNDCHeight, 1);
         
@@ -175,7 +185,7 @@ export class UVOverlay {
         const uv1X = 1 - marginNDC - squareSizeNDC / 2;
         const uv1Y = -1 + marginNDCHeight + squareSizeNDCHeight / 2;
         
-        this.uv1Wireframe.position.set(uv1X, uv1Y, 0.001);
+        this.uv1Wireframe.position.set(uv1X, uv1Y, 0.1);
         // Scale by 2x the texture plane scale since wireframe is in -0.5 to 0.5 space
         this.uv1Wireframe.scale.set(squareSizeNDC, squareSizeNDCHeight, 1);
     }
