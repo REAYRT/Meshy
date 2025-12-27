@@ -19,7 +19,7 @@ export function update(renderer, scene, camera, settings, uvOverlay) {
 
     renderer.render(scene, camera);
     
-    // Render UV overlay on top
+    // Render UV overlay on 2D canvas
     if (uvOverlay) {
         uvOverlay.render();
     }
