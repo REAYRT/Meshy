@@ -23,7 +23,7 @@ Visit the application at: **[meshy.reayrt.com](https://meshy.reayrt.com)**
 ## Pages
 
 - **Landing Page** (`index.html`) - Home page with API status indicator
-- **Mesh Testing** (`testing.html`) - Interactive mesh testing interface
+- **Mesh Editor** (`editor.html`) - Interactive mesh editor interface
 
 ## Local Development
 
