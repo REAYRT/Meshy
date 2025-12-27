@@ -56,8 +56,9 @@ function createLedWall()
     ledMesh.rotateOnWorldAxis(new THREE.Vector3(0,1,0), -THREE.MathUtils.degToRad(wallSettings.angles[0]));
     scene.add(ledMesh);
     
-    // Update UV overlay textures
+    // Update UV overlay textures and geometry
     uvOverlay.updateTextures(uv0Texture, uv1Texture);
+    uvOverlay.updateGeometry(ledWallGeometry);
 }
 
 createLedWall();
