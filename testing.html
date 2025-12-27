@@ -4,7 +4,36 @@
   <meta charset="utf-8">
   <title>REAYRT | LED Mesh Generator</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>body{margin:0}canvas{display:block}</style>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+    .title-overlay {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      text-align: right;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+      z-index: 1000;
+    }
+    .title-overlay h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .title-overlay h2 {
+      margin: 5px 0 0 0;
+      font-size: 14px;
+      font-weight: normal;
+      opacity: 0.9;
+    }
+  </style>
   <script type="importmap">
     {
       "imports": {
@@ -14,6 +43,11 @@
   </script>
 </head>
 <body>
+
+<div class="title-overlay">
+  <h1>REAYRT Virtual Production</h1>
+  <h2>Meshy - LED Volume Mesh Builder (Beta)</h2>
+</div>
 
 <script type="module" src="app.js"></script>
 
