@@ -131,13 +131,14 @@ export class UVOverlay {
             const u2 = uvs.array[i2 * 2];
             const v2 = uvs.array[i2 * 2 + 1];
             
-            // Convert UV coords (0-1) to NDC (-1 to 1)
-            const x0 = u0 * 2 - 1;
-            const y0 = v0 * 2 - 1;
-            const x1 = u1 * 2 - 1;
-            const y1 = v1 * 2 - 1;
-            const x2 = u2 * 2 - 1;
-            const y2 = v2 * 2 - 1;
+            // Keep UV coords in 0-1 space, then center them around origin (-0.5 to 0.5)
+            // This allows proper scaling later
+            const x0 = u0 - 0.5;
+            const y0 = v0 - 0.5;
+            const x1 = u1 - 0.5;
+            const y1 = v1 - 0.5;
+            const x2 = u2 - 0.5;
+            const y2 = v2 - 0.5;
             
             // Three edges of the triangle
             positions.push(x0, y0, 0, x1, y1, 0);
@@ -167,14 +168,16 @@ export class UVOverlay {
         const uv0Y = -1 + marginNDCHeight + squareSizeNDCHeight / 2 + squareSizeNDCHeight + marginNDCHeight;
         
         this.uv0Wireframe.position.set(uv0X, uv0Y, 0.001);
-        this.uv0Wireframe.scale.set(squareSizeNDC / 2, squareSizeNDCHeight / 2, 1);
+        // Scale by 2x the texture plane scale since wireframe is in -0.5 to 0.5 space
+        this.uv0Wireframe.scale.set(squareSizeNDC, squareSizeNDCHeight, 1);
         
         // Position UV1 wireframe (bottom square)
         const uv1X = 1 - marginNDC - squareSizeNDC / 2;
         const uv1Y = -1 + marginNDCHeight + squareSizeNDCHeight / 2;
         
         this.uv1Wireframe.position.set(uv1X, uv1Y, 0.001);
-        this.uv1Wireframe.scale.set(squareSizeNDC / 2, squareSizeNDCHeight / 2, 1);
+        // Scale by 2x the texture plane scale since wireframe is in -0.5 to 0.5 space
+        this.uv1Wireframe.scale.set(squareSizeNDC, squareSizeNDCHeight, 1);
     }
     
     render() {
