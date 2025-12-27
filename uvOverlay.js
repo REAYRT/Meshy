@@ -70,7 +70,19 @@ export class UVOverlay {
         const uvs = geometry.attributes[uvAttribute];
         const indices = geometry.index;
         
-        if (!uvs || !indices) return;
+        if (!uvs || !indices) {
+            console.warn(`UV overlay: ${uvAttribute} attribute not found`);
+            // Still draw the border
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, this.squareSize, this.squareSize);
+            
+            // Draw error text
+            ctx.fillStyle = 'white';
+            ctx.font = '14px Arial';
+            ctx.fillText(`${uvAttribute} not found`, x + 10, y + 20);
+            return;
+        }
         
         const size = this.squareSize;
         
