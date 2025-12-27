@@ -12,25 +12,21 @@ export class UVOverlay {
         this.squareSize = 200; // pixels
         this.margin = 20; // pixels from edge
         
-        // Create materials for UV0 and UV1
-        this.uv0Material = new THREE.MeshBasicMaterial({ 
-            color: 0xffffff,
-            side: THREE.DoubleSide 
-        });
-        this.uv1Material = new THREE.MeshBasicMaterial({ 
-            color: 0xffffff,
-            side: THREE.DoubleSide 
+        // Create border materials for UV space boundaries (white squares)
+        this.borderMaterial = new THREE.LineBasicMaterial({ 
+            color: 0xffffff, 
+            linewidth: 2,
+            depthTest: false,
+            depthWrite: false
         });
         
-        // Create plane geometry for the squares
-        const planeGeometry = new THREE.PlaneGeometry(2, 2);
+        // Create UV space border boxes
+        const borderGeometry = this.createBorderBox();
+        this.uv0Border = new THREE.LineSegments(borderGeometry, this.borderMaterial);
+        this.uv1Border = new THREE.LineSegments(borderGeometry.clone(), this.borderMaterial);
         
-        // Create meshes
-        this.uv0Mesh = new THREE.Mesh(planeGeometry, this.uv0Material);
-        this.uv1Mesh = new THREE.Mesh(planeGeometry, this.uv1Material);
-        
-        this.overlayScene.add(this.uv0Mesh);
-        this.overlayScene.add(this.uv1Mesh);
+        this.overlayScene.add(this.uv0Border);
+        this.overlayScene.add(this.uv1Border);
         
         // Create wireframe materials for visualizing UV coordinates
         this.uv0WireMaterial = new THREE.LineBasicMaterial({ 
@@ -56,6 +52,20 @@ export class UVOverlay {
         window.addEventListener('resize', () => this.updatePositions());
     }
     
+    createBorderBox() {
+        // Create a square border from -0.5 to 0.5 (will be scaled to fit UV space)
+        const positions = [
+            -0.5, -0.5, 0,  0.5, -0.5, 0,  // Bottom
+            0.5, -0.5, 0,  0.5,  0.5, 0,  // Right
+            0.5,  0.5, 0, -0.5,  0.5, 0,  // Top
+            -0.5,  0.5, 0, -0.5, -0.5, 0   // Left
+        ];
+        
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        return geometry;
+    }
+    
     updatePositions() {
         const width = this.renderer.domElement.width;
         const height = this.renderer.domElement.height;
@@ -74,25 +84,19 @@ export class UVOverlay {
         const uv1X = 1 - marginNDC - squareSizeNDC / 2;
         const uv1Y = -1 + marginNDCHeight + squareSizeNDCHeight / 2;
         
-        this.uv0Mesh.position.set(uv0X, uv0Y, 0);
-        this.uv0Mesh.scale.set(squareSizeNDC / 2, squareSizeNDCHeight / 2, 1);
+        // Update border positions
+        this.uv0Border.position.set(uv0X, uv0Y, 0);
+        this.uv0Border.scale.set(squareSizeNDC, squareSizeNDCHeight, 1);
         
-        this.uv1Mesh.position.set(uv1X, uv1Y, 0);
-        this.uv1Mesh.scale.set(squareSizeNDC / 2, squareSizeNDCHeight / 2, 1);
+        this.uv1Border.position.set(uv1X, uv1Y, 0);
+        this.uv1Border.scale.set(squareSizeNDC, squareSizeNDCHeight, 1);
         
         // Update wireframe positions as well
         this.updateWireframePositions();
     }
     
     updateTextures(uv0Texture, uv1Texture) {
-        if (uv0Texture) {
-            this.uv0Material.map = uv0Texture;
-            this.uv0Material.needsUpdate = true;
-        }
-        if (uv1Texture) {
-            this.uv1Material.map = uv1Texture;
-            this.uv1Material.needsUpdate = true;
-        }
+        // No longer needed but keeping for compatibility
     }
     
     updateGeometry(geometry) {
@@ -203,12 +207,11 @@ export class UVOverlay {
     }
     
     dispose() {
-        this.uv0Material.dispose();
-        this.uv1Material.dispose();
+        this.borderMaterial.dispose();
         this.uv0WireMaterial.dispose();
         this.uv1WireMaterial.dispose();
-        this.uv0Mesh.geometry.dispose();
-        this.uv1Mesh.geometry.dispose();
+        this.uv0Border.geometry.dispose();
+        this.uv1Border.geometry.dispose();
         if (this.uv0Wireframe) {
             this.uv0Wireframe.geometry.dispose();
         }
