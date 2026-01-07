@@ -1,5 +1,3 @@
-import * as THREE from './three.module.js';
-
 export class UVOverlay {
     constructor(renderer) {
         this.renderer = renderer;

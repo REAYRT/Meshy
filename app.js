@@ -18,13 +18,36 @@ let currentTexture = null;
 let currentFullGeometry = null;
 let currentSectionGeometries = [];
 
+function disposeObject(obj) {
+    if (!obj) return;
+    if (obj.isGroup) {
+        obj.children.forEach(child => {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (child.material.map && child.material.map !== currentTexture) {
+                    child.material.map.dispose();
+                }
+                child.material.dispose();
+            }
+        });
+    } else {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+            if (obj.material.map && obj.material.map !== currentTexture) {
+                obj.material.map.dispose();
+            }
+            obj.material.dispose();
+        }
+    }
+}
+
 function createDefaultTexture() {
     const canvas = document.createElement('canvas');
     canvas.width = 1;
     canvas.height = 1;
     const ctx = canvas.getContext('2d');
     // Placeholder until REAYRT.jpg loads
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#000000ff';
     ctx.fillRect(0, 0, 1, 1);
     return new THREE.CanvasTexture(canvas);
 }
@@ -59,38 +82,13 @@ function createLedWall()
 {
     if (ledMesh)
     {
-        // ledMesh may be a Group; dispose children if needed
         scene.remove(ledMesh);
-        if (ledMesh.isGroup) {
-            ledMesh.children.forEach(child => {
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) {
-                    if (child.material.map && child.material.map !== currentTexture) {
-                        child.material.map.dispose();
-                    }
-                    child.material.dispose();
-                }
-            });
-        } else {
-            ledMesh.geometry.dispose();
-            if (ledMesh.material.map && ledMesh.material.map !== currentTexture) {
-                ledMesh.material.map.dispose();
-            }
-            ledMesh.material.dispose();
-        }
+        disposeObject(ledMesh);
     }
     if (wireframe)
     {
         scene.remove(wireframe);
-        if (wireframe.isGroup) {
-            wireframe.children.forEach(child => {
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) child.material.dispose();
-            });
-        } else {
-            wireframe.geometry.dispose();
-            wireframe.material.dispose();
-        }
+        disposeObject(wireframe);
     }
 
     const panels = { x: wallSettings.columns, y: wallSettings.rows };
@@ -141,7 +139,6 @@ function createLedWall()
 
         const posAttr = ledWallGeometry.attributes.position;
         const uv2Attr = ledWallGeometry.attributes.uv2;
-        const indicesFull = ledWallGeometry.index;
 
         for (let startCol = 0; startCol < maxCols; startCol += sectionWidth) {
             const endColExclusive = Math.min(startCol + sectionWidth, maxCols);
