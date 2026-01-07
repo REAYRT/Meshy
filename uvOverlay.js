@@ -33,10 +33,6 @@ export class UVOverlay {
         this.render();
     }
     
-    updateTextures(uv0Texture, uv1Texture) {
-        // No longer needed but keeping for compatibility
-    }
-    
     updateGeometry(geometry) {
         this.geometry = geometry;
         // Cache original primary/secondary UVs for labeled previews

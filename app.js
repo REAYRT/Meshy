@@ -18,6 +18,7 @@ let currentTexture = null;
 let currentFullGeometry = null;
 let currentSectionGeometries = [];
 
+// Helper to dispose mesh/group resources
 function disposeObject(obj) {
     if (!obj) return;
     if (obj.isGroup) {
@@ -80,13 +81,11 @@ function loadDefaultTexture() {
 
 function createLedWall()
 {
-    if (ledMesh)
-    {
+    if (ledMesh) {
         scene.remove(ledMesh);
         disposeObject(ledMesh);
     }
-    if (wireframe)
-    {
+    if (wireframe) {
         scene.remove(wireframe);
         disposeObject(wireframe);
     }
