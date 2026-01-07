@@ -18,30 +18,6 @@ let currentTexture = null;
 let currentFullGeometry = null;
 let currentSectionGeometries = [];
 
-// Helper to dispose mesh/group resources
-function disposeObject(obj) {
-    if (!obj) return;
-    if (obj.isGroup) {
-        obj.children.forEach(child => {
-            if (child.geometry) child.geometry.dispose();
-            if (child.material) {
-                if (child.material.map && child.material.map !== currentTexture) {
-                    child.material.map.dispose();
-                }
-                child.material.dispose();
-            }
-        });
-    } else {
-        if (obj.geometry) obj.geometry.dispose();
-        if (obj.material) {
-            if (obj.material.map && obj.material.map !== currentTexture) {
-                obj.material.map.dispose();
-            }
-            obj.material.dispose();
-        }
-    }
-}
-
 function createDefaultTexture() {
     const canvas = document.createElement('canvas');
     canvas.width = 1;
@@ -58,8 +34,11 @@ function loadDefaultTexture() {
     loader.load(
         'REAYRT.jpg',
         (tex) => {
+            tex.colorSpace = THREE.SRGBColorSpace;
             currentTexture = tex;
             settings.previewTexture = 'REAYRT.jpg';
+            // Update UV overlay with texture
+            uvOverlay.updateTexture(tex);
             if (ledMesh) {
                 if (ledMesh.isGroup) {
                     ledMesh.children.forEach(child => {
@@ -81,13 +60,40 @@ function loadDefaultTexture() {
 
 function createLedWall()
 {
-    if (ledMesh) {
+    if (ledMesh)
+    {
+        // ledMesh may be a Group; dispose children if needed
         scene.remove(ledMesh);
-        disposeObject(ledMesh);
+        if (ledMesh.isGroup) {
+            ledMesh.children.forEach(child => {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (child.material.map && child.material.map !== currentTexture) {
+                        child.material.map.dispose();
+                    }
+                    child.material.dispose();
+                }
+            });
+        } else {
+            ledMesh.geometry.dispose();
+            if (ledMesh.material.map && ledMesh.material.map !== currentTexture) {
+                ledMesh.material.map.dispose();
+            }
+            ledMesh.material.dispose();
+        }
     }
-    if (wireframe) {
+    if (wireframe)
+    {
         scene.remove(wireframe);
-        disposeObject(wireframe);
+        if (wireframe.isGroup) {
+            wireframe.children.forEach(child => {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) child.material.dispose();
+            });
+        } else {
+            wireframe.geometry.dispose();
+            wireframe.material.dispose();
+        }
     }
 
     const panels = { x: wallSettings.columns, y: wallSettings.rows };
@@ -110,8 +116,8 @@ function createLedWall()
     // Use current texture or placeholder
     const texture = currentTexture || createDefaultTexture();
     
-    // Material with texture to mark UVs as "used"
-    const baseMaterial = new THREE.MeshStandardMaterial({ 
+    // Material with texture - use BasicMaterial to show true texture colors without lighting
+    const baseMaterial = new THREE.MeshBasicMaterial({ 
         map: texture,
         side: THREE.DoubleSide
     });
@@ -138,6 +144,7 @@ function createLedWall()
 
         const posAttr = ledWallGeometry.attributes.position;
         const uv2Attr = ledWallGeometry.attributes.uv2;
+        const indicesFull = ledWallGeometry.index;
 
         for (let startCol = 0; startCol < maxCols; startCol += sectionWidth) {
             const endColExclusive = Math.min(startCol + sectionWidth, maxCols);
@@ -213,8 +220,7 @@ function createLedWall()
         const wfGroup = new THREE.Group();
         ledMesh.children.forEach((child, index) => {
             const wfGeom = new THREE.WireframeGeometry(child.geometry);
-            const wfMaterial = new THREE.LineBasicMaterial({ color: index % 2 === 0 ? 0x00ff00 : 0xff0000 });
-            const wf = new THREE.LineSegments(wfGeom, wfMaterial);
+            const wf = new THREE.LineSegments(wfGeom, wireframeMaterial.clone());
             wf.rotation.copy(child.rotation);
             wf.position.copy(child.position);
             wfGroup.add(wf);
@@ -278,11 +284,18 @@ function updateSelectedSectionIndex(idx) {
     setOverlaySource();
 }
 
+function toggleWireframe(visible) {
+    if (wireframe) {
+        wireframe.visible = visible;
+    }
+}
+
 createLedWall();
 setupUI(ledMesh, {
     rebuild: createLedWall,
     updateUVChannel: updateUVChannel,
-    updateSelectedSectionIndex: updateSelectedSectionIndex
+    updateSelectedSectionIndex: updateSelectedSectionIndex,
+    toggleWireframe: toggleWireframe
 }, {
     obj: () => downloadOBJ(ledMesh),
     glb: () => downloadGLB(ledMesh)

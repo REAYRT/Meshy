@@ -1,3 +1,4 @@
+import * as THREE from './three.module.js';
 import { OBJExporter } from 'https://unpkg.com/three@0.153.0/examples/jsm/exporters/OBJExporter.js';
 import { GLTFExporter } from 'https://unpkg.com/three@0.153.0/examples/jsm/exporters/GLTFExporter.js';
 

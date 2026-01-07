@@ -1,3 +1,5 @@
+import * as THREE from './three.module.js';
+
 export class UVOverlay {
     constructor(renderer) {
         this.renderer = renderer;
@@ -21,6 +23,7 @@ export class UVOverlay {
         this.geometry = null;
         this.primaryUVs = null;   // Original TEXCOORD_0
         this.secondaryUVs = null; // TEXCOORD_1
+        this.textureImage = null; // Loaded texture for background
         
         // Handle window resize
         this.resizeCanvas();
@@ -31,6 +34,13 @@ export class UVOverlay {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         this.render();
+    }
+    
+    updateTexture(texture) {
+        if (texture && texture.image) {
+            this.textureImage = texture.image;
+            this.render();
+        }
     }
     
     updateGeometry(geometry) {
@@ -62,12 +72,12 @@ export class UVOverlay {
         ctx.fillStyle = 'white';
         
         // Draw Current UVs (whatever is bound as TEXCOORD_0 on geometry)
-        this.drawUVSpace(ctx, x, currentY, this.geometry, 'uv', 'rgba(0, 200, 255, 0.6)');
+        this.drawUVSpace(ctx, x, currentY, this.geometry, 'uv', 'rgba(0, 200, 255, 1)');
         ctx.fillText('Current UVs', x, currentY - 6);
         
         // Draw Warp UVs (original TEXCOORD_0 cached)
         if (this.primaryUVs && this.geometry.index) {
-            this.drawUVBuffer(ctx, x, primaryY, this.primaryUVs, this.geometry.index, 'rgba(255, 80, 80, 0.6)');
+            this.drawUVBuffer(ctx, x, primaryY, this.primaryUVs, this.geometry.index, 'rgba(255, 80, 80, 1)');
         } else {
             this.drawEmpty(ctx, x, primaryY, 'Warp UVs not found');
         }
@@ -76,7 +86,7 @@ export class UVOverlay {
         // Draw Full Volume UVs (original TEXCOORD_1 cached or live attr)
         const secondaryAttr = this.secondaryUVs || this.geometry.attributes.uv2;
         if (secondaryAttr && this.geometry.index) {
-            this.drawUVBuffer(ctx, x, secondaryY, secondaryAttr, this.geometry.index, 'rgba(255, 220, 0, 0.6)');
+            this.drawUVBuffer(ctx, x, secondaryY, secondaryAttr, this.geometry.index, 'rgba(255, 220, 0, 1)');
         } else {
             this.drawEmpty(ctx, x, secondaryY, 'Full Volume UVs not found');
         }
@@ -95,17 +105,27 @@ export class UVOverlay {
         this.drawUVBuffer(ctx, x, y, uvs, indices, color);
     }
 
-    drawUVBuffer(ctx, x, y, uvs, indices, color) {
+    drawUVBuffer(ctx, x, y, uvs, indices, wireColor) {
         const size = this.squareSize;
+        
+        // Draw dark background first
+        ctx.fillStyle = 'rgba(30, 30, 30, 1)';
+        ctx.fillRect(x, y, size, size);
+        
+        // Draw texture background if available (40% opacity)
+        if (this.textureImage) {
+            ctx.globalAlpha = 0.4;
+            ctx.drawImage(this.textureImage, x, y, size, size);
+            ctx.globalAlpha = 1.0;
+        }
         
         // Draw border
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
         ctx.strokeRect(x, y, size, size);
         
-        // Draw mesh triangles
-        ctx.fillStyle = color;
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        // Draw mesh triangles as wireframe only
+        ctx.strokeStyle = wireColor;
         ctx.lineWidth = 1;
         
         for (let i = 0; i < indices.count; i += 3) {
@@ -128,13 +148,12 @@ export class UVOverlay {
             const x2 = x + u2 * size;
             const y2 = y + (1 - v2) * size;
             
-            // Draw filled triangle
+            // Draw wireframe triangle (no fill)
             ctx.beginPath();
             ctx.moveTo(x0, y0);
             ctx.lineTo(x1, y1);
             ctx.lineTo(x2, y2);
             ctx.closePath();
-            ctx.fill();
             ctx.stroke();
         }
     }

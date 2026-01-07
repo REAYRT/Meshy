@@ -3,6 +3,7 @@ import GUI from './lil-gui.esm.min.js';
 export const settings = {
     animationSpeed: 0.0005,
     autoRotate: true,
+    showWireframe: true,
     previewUVChannel: 0,
     previewTexture: null,
     selectedSectionIndex: -1
@@ -193,6 +194,11 @@ export function setupUI(mesh, onUpdate, onDownload)
 
     const animFolder = gui.addFolder('Animation');
     animFolder.add(settings, 'autoRotate').name('Auto Rotate');
+    animFolder.add(settings, 'showWireframe').name('Show Wireframe').onChange((value) => {
+        if (onUpdate.toggleWireframe) {
+            onUpdate.toggleWireframe(value);
+        }
+    });
 
     const textureFolder = gui.addFolder('Texture Preview');
     textureFolder.add(settings, 'previewUVChannel', { 'Warp UVs': 0, 'Full Volume UVs': 1 }).name('UV Channel').onChange((value) => {
