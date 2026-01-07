@@ -272,53 +272,6 @@ function applyPreviewChannelToMeshes() {
     }
 }
 
-function loadTextureFromUrl(dataUrl) {
-    const loader = new THREE.TextureLoader();
-    const newTexture = loader.load(dataUrl);
-    
-    if (currentTexture && currentTexture !== ledMesh.material.map) {
-        currentTexture.dispose();
-    }
-    
-    currentTexture = newTexture;
-    settings.previewTexture = dataUrl;
-    
-    if (ledMesh) {
-        if (ledMesh.isGroup) {
-            ledMesh.children.forEach(child => {
-                child.material.map = newTexture;
-                child.material.needsUpdate = true;
-            });
-        } else {
-            ledMesh.material.map = newTexture;
-            ledMesh.material.needsUpdate = true;
-        }
-    }
-}
-
-function clearTexture() {
-    if (currentTexture) {
-        currentTexture.dispose();
-        currentTexture = null;
-        settings.previewTexture = null;
-    }
-    
-    if (ledMesh) {
-        const placeholder = createDefaultTexture();
-        if (ledMesh.isGroup) {
-            ledMesh.children.forEach(child => {
-                child.material.map = placeholder;
-                child.material.needsUpdate = true;
-            });
-        } else {
-            ledMesh.material.map = placeholder;
-            ledMesh.material.needsUpdate = true;
-        }
-    }
-    // Reload default REAYRT.jpg
-    loadDefaultTexture();
-}
-
 function updateUVChannel(channel) {
     settings.previewUVChannel = channel;
     applyPreviewChannelToMeshes();
@@ -333,8 +286,6 @@ createLedWall();
 setupUI(ledMesh, {
     rebuild: createLedWall,
     updateUVChannel: updateUVChannel,
-    loadTexture: loadTextureFromUrl,
-    clearTexture: clearTexture,
     updateSelectedSectionIndex: updateSelectedSectionIndex
 }, {
     obj: () => downloadOBJ(ledMesh),

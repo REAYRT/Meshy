@@ -200,34 +200,6 @@ export function setupUI(mesh, onUpdate, onDownload)
             onUpdate.updateUVChannel(value);
         }
     });
-    
-    const textureControls = {
-        loadTexture: function() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        if (onUpdate.loadTexture) {
-                            onUpdate.loadTexture(event.target.result);
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-            input.click();
-        },
-        clearTexture: function() {
-            if (onUpdate.clearTexture) {
-                onUpdate.clearTexture();
-            }
-        }
-    };
-    textureFolder.add(textureControls, 'loadTexture').name('Load Texture');
-    textureFolder.add(textureControls, 'clearTexture').name('Clear Texture');
 
     // Section selection for UV preview
     let sectionController;
