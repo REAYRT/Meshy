@@ -69,10 +69,10 @@ export class UVOverlay {
         
         // Labels style
         ctx.font = '14px Arial';
-        ctx.fillStyle = 'white';
         
         // Draw Current UVs (whatever is bound as TEXCOORD_0 on geometry)
         this.drawUVSpace(ctx, x, currentY, this.geometry, 'uv', 'rgba(0, 200, 255, 1)');
+        ctx.fillStyle = 'white';
         ctx.fillText('Current UVs', x, currentY - 6);
         
         // Draw Warp UVs (original TEXCOORD_0 cached)
@@ -81,6 +81,7 @@ export class UVOverlay {
         } else {
             this.drawEmpty(ctx, x, primaryY, 'Warp UVs not found');
         }
+        ctx.fillStyle = 'white';
         ctx.fillText('Warp UVs', x, primaryY - 6);
         
         // Draw Full Volume UVs (original TEXCOORD_1 cached or live attr)
@@ -90,6 +91,7 @@ export class UVOverlay {
         } else {
             this.drawEmpty(ctx, x, secondaryY, 'Full Volume UVs not found');
         }
+        ctx.fillStyle = 'white';
         ctx.fillText('Full Volume UVs', x, secondaryY - 6);
     }
     
